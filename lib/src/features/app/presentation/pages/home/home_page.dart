@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps/src/features/app/presentation/pages/map/map_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -14,14 +12,13 @@ class _HomePageState extends State<HomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
-
     setState(() {
       _counter++;
     });
 
     if (_counter.isEven) {
       Navigator.push(
-          context, MaterialPageRoute(builder: (context) => MapPage()));
+          context, MaterialPageRoute(builder: (context) => const MapPage()));
     }
   }
 
@@ -29,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text('Google Maps Test'),
       ),
       body: Center(
         child: Column(

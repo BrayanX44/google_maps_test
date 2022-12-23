@@ -1,6 +1,6 @@
 # google_maps
 
-A new Flutter project.
+A new Flutter project. Youtube course Flutter - Google Maps by Darwin Morocho
 
 ## Getting Started
 
