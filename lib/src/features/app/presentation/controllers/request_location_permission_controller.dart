@@ -17,6 +17,11 @@ class RequestLocationPermissionController extends ChangeNotifier {
     _notify(status);
   }
 
+  Future<PermissionStatus> check () async {
+    final status = await _locationPermission.status;
+    return status;
+  }
+
   void _notify(PermissionStatus status) {
     if (!_streamController.isClosed && _streamController.hasListener) {
       _streamController.sink.add(status);
