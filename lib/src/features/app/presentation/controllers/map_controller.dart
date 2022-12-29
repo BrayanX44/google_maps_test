@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps/src/core/settings/app_assets.dart';
 import 'package:google_maps/src/core/utils/asset_to_bytes.dart';
 import 'package:google_maps/src/core/utils/map_style.dart';
@@ -18,6 +19,16 @@ class MapController extends ChangeNotifier {
 
   final _markerIcon = Completer<BitmapDescriptor>();
 
+  bool _loading = true;
+
+  bool get loading => _loading;
+
+  late bool _gpsEnable;
+
+  bool get gpsEnable => _gpsEnable;
+
+  StreamSubscription? _gpsSubscription;
+
   final initialCameraPosition = const CameraPosition(
       target: LatLng(7.0809615608080865, -73.14828396220663), zoom: 20);
 
@@ -26,7 +37,12 @@ class MapController extends ChangeNotifier {
   }
 
   MapController() {
-    imageToBytes(
+    _init();
+  }
+
+  Future<void> _init() async {
+    _loading = true;
+    await imageToBytes(
       "https://smallimg.pngkey.com/png/small/497-4975453_bigstock-map-marker-map-pin-vector-ma-92524379.png",
       width: 35,
       height: 40,
@@ -35,7 +51,15 @@ class MapController extends ChangeNotifier {
       final bitmap = BitmapDescriptor.fromBytes(value);
       _markerIcon.complete(bitmap);
     });
+    _gpsEnable = await Geolocator.isLocationServiceEnabled();
+    _loading = false;
+    _gpsSubscription = Geolocator.getServiceStatusStream().listen((status) {
+      _gpsEnable = status == ServiceStatus.enabled;
+    });
+    notifyListeners();
   }
+
+  Future<bool> turnOnGps() => Geolocator.openLocationSettings();
 
   void onTap(LatLng position) async {
     final id = _markers.length.toString();
@@ -66,6 +90,7 @@ class MapController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _gpsSubscription?.cancel();
     _markersController.close();
     super.dispose();
   }

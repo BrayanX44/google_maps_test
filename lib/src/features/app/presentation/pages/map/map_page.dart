@@ -22,12 +22,44 @@ class MapPage extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(),
-        body: Consumer<MapController>(
-          builder: (_, controller, __) => GoogleMap(
-            initialCameraPosition: controller.initialCameraPosition,
-            onMapCreated: controller.onMapCreated,
-            markers: controller.markers,
-            onTap: controller.onTap,
+        body: Selector<MapController, bool>(
+          selector: (_, controller) => controller.loading,
+          builder: (context, loading, loadingWidget) {
+            if (loading) {
+              return loadingWidget!;
+            }
+            return Consumer<MapController>(
+              builder: (_, controller, gpsMessageWidget) {
+                if (!controller.gpsEnable) {
+                  return gpsMessageWidget!;
+                }
+                return GoogleMap(
+                  initialCameraPosition: controller.initialCameraPosition,
+                  onMapCreated: controller.onMapCreated,
+                  markers: controller.markers,
+                  onTap: controller.onTap,
+                );
+              },
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('You must enable GPS location service'),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () {
+                        final controller = context.read<MapController>();
+                        controller.turnOnGps();
+                      },
+                      child: const Text('Turn on GPS'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+          child: const Center(
+            child: CircularProgressIndicator(),
           ),
         ),
       ),
